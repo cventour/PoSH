@@ -2,7 +2,7 @@
 Random Powershell scripts that I create to automate tasks I am too lazy to click on.
 
 
-### JitAuto
+### JitAuto.ps1
 Working with Azure VMs and protecting them with JIT (Just In Time access) is great ! But when I have a lab of 5+ machines, its really daunting to go to the portal and Start all of them and then Request access one by one. I created this script to automate the process of starting a VM and then requesting access for it. You just need to edit the script to add your own Subscription ID and Resource Group for which you want to start the machines.
 
 The script will
