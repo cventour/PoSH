@@ -7,6 +7,7 @@ $RG ='YOUR RESOURCE GROUP NAME'
 $PublicIP = (Invoke-WebRequest -uri 'http://ifconfig.me/ip').Content.tostring()
 [hashtable]$Ports = @{Windows=3389; Linux=22}
 
+
 Connect-AzAccount
 Set-AzContext -SubscriptionId $SubscriptionID
 $RGVMs = $(Get-AzVM -ResourceGroupName $RG)
@@ -18,7 +19,7 @@ ForEach($VM in $RGVMs) {
     $OSType=(Get-AzVM -Name $VM.Name).StorageProfile.OsDisk.OsType
     $nicName=($VM.NetworkProfile.NetworkInterfaces[0].Id.Split('/') | select -Last 1)
     $PublicIpName =  (Get-AzNetworkInterface -ResourceGroupName $RG -Name $nicName).IpConfigurations.PublicIpAddress.Id.Split('/') | select -Last 1
-    $PublicIP = (Get-AzPublicIpAddress -ResourceGroupName $RG -Name $PublicIpName).IpAddress
+    $PublicVMIP = (Get-AzPublicIpAddress -ResourceGroupName $RG -Name $PublicIpName).IpAddress
 
     Write-Host '[*] Checking' $VM.Name 'state .. located in' $VM.Location
     $VMState = $(Get-AzVM -Name $VM.Name -Status).Powerstate
@@ -34,10 +35,10 @@ ForEach($VM in $RGVMs) {
         #$TableItem=@($VM.Name,$PublicIP,$Ports["$OSType"])
         $TableItem=@{}
         $TableItem.Add('Name',$VM.Name)
-        $TableItem.Add('IP',$PublicIP)
+        $TableItem.Add('IP',$PublicVMIP)
         $TableItem.Add('Port',$Ports["$OSType"])
         $FinalTable+=$TableItem
-        Write-Host '[J] Initiating JIT request for '$VM.Name' on '$PublicIp : $Ports["$OSType"] ...'' -NoNewline
+        Write-Host '[J] Initiating JIT request for '$VM.Name' on '$PublicVMIp : $Ports["$OSType"] ...'' -NoNewline
         $JitResourceID = "/subscriptions/"+$SubscriptionID+"/resourceGroups/"+$RG+"/providers/Microsoft.Security/locations/"+$vm.location+"/jitNetworkAccessPolicies/default"
         $JitPolicyVm = (@{
             id="/subscriptions/"+$SubscriptionID+"/resourceGroups/"+$RG+"/providers/Microsoft.Compute/virtualMachines/"+$VM.name;
