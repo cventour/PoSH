@@ -1,4 +1,6 @@
-
+# Get the latest Defender Engine/Version/Definition versions 
+# as announced in https://www.microsoft.com/en-us/wdsi/defenderupdates
+# Works on Powershell 7.1 on MacOS
 
 $wdsi = Invoke-WebRequest -Uri 'https://www.microsoft.com/en-us/wdsi/defenderupdates'
 $wdsi.Content | Out-File a.txt
