@@ -13,6 +13,11 @@ Preparation :
 
 you will need to issue an API clientID and appSecret from your Azure portal to authenticate to the API. More info in the link https://docs.microsoft.com/en-us/microsoft-365/security/defender-endpoint/apis-intro?view=o365-worldwide
 
+### Get-WDSI5.ps1
+This is a powershell script for Windows devices. You can use it when you want to query MS for the latest definitions and engine versions of Defender. Useful if you are checking device compliance against your current Defender definitions. Has been tested for PoSH version 5.1
+
+### Get-WDSI5.ps1
+This is a powershell script for Mac devices. You can use it when you want to query MS for the latest definitions and engine versions of Defender. Useful if you are checking device compliance against your current Defender definitions. Has been tested for PoSH version 7.1 on Mac
 
 ## DISCLAIMER
 The scripts are shared as is. Use them at your own risk. I do not intentionaly share scripts that may be breaking something and I take no responsibility if the script breaks something you built.
