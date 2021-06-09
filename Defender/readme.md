@@ -16,7 +16,7 @@ you will need to issue an API clientID and appSecret from your Azure portal to a
 ### Get-WDSI5.ps1
 This is a powershell script for Windows devices. You can use it when you want to query MS for the latest definitions and engine versions of Defender. Useful if you are checking device compliance against your current Defender definitions. Has been tested for PoSH version 5.1
 
-### Get-WDSI5.ps1
+### Get-WDSI7.ps1
 This is a powershell script for Mac devices. You can use it when you want to query MS for the latest definitions and engine versions of Defender. Useful if you are checking device compliance against your current Defender definitions. Has been tested for PoSH version 7.1 on Mac
 
 ## DISCLAIMER
