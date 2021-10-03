@@ -2,6 +2,9 @@
 Scripts that I've written to make my life easier with MS Defender for Endpoint
 
 
+### Get-HuntingData.ps1
+This script will use MS Defender for Endpoint Advanced Hunting API to execute a hunting query and save its results to query.csv
+
 ### Delete-Indicator.ps1
 When you have imported a large number of indicators that you dont need anymore (and you haven't configured auto-expiration when importing them) you will need to multi-select and delete them in the portal or use the Defender API. I created this script to speed the up the deletion process for Indicators that I want to delete
 
