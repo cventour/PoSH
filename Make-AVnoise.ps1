@@ -71,7 +71,7 @@ try {
      $vendorResult = $attrib.last_analysis_results.$vendor.result
      $DLurl = $VTitem.links.self+"/download_url" #create the URL string for downloading the file
      Write-Host "$(get-date -f 'yyyy-MM-ddTHH:mm:ss.fffZ') [Download]" $filename "hash" $attrib.sha1 " Detections" $detections "$vendor detection :" $vendorResult
-     $key = [system.console]::readkey($true)
+     # $key = [system.console]::readkey($true)
      if (($key.modifiers -band [consolemodifiers]"control") -and ($key.key -eq "C")) {
         break
      } 
