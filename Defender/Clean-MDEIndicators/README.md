@@ -21,9 +21,10 @@ You can edit those parameters directly to the script or pass them to the script 
 
 The script automatically creates a logfile in the format of MDEIndicators_[yyyyMMdd-hhmm][hostname].log with the following CSV format
 
-IOCType - FileSha256 currently
-IOCValue - The hash value of the IOC (any value of MD5, SHA1, SHA2)
-Result - "Delete" if the IOC is deleted from the File Indicators list or "Keep" if it remains in the portal.
+- IOCType , FileSha256 currently
+- IOCValue ,  The hash value of the IOC (any value of MD5, SHA1, SHA2).
+- Result ,  "Delete" if the IOC is deleted from the File Indicators list or "Keep" if it remains in the portal.
+- DetectionResult , Name of malware name, If known to Defender AV.
 
 ### Examples of Usage
 
