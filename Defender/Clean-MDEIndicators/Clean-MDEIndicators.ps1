@@ -1,10 +1,10 @@
 param(
     # [Parameter(Mandatory)]
-    [string]$appID ='c483f897-4dca-487e-b010-e90e9d04d9cb',
-    [string]$appSecret = 'Qvz7Q~cLtWqefUd3x3.TFvc.tSRd42HT.akWd',
-    [string]$TenantId = '3f68ba40-f45f-4e2f-92bb-e5b0ca8c75a7',
+    [string]$appID ='APPID',
+    [string]$appSecret = 'APPSECRET',
+    [string]$TenantId = 'TENANTID',
     [string]$IndicatorType = 'FileSha256',
-    [string]$VTapiKey = '140963e9a0caa83078df9ea5e95638ed7be146e25226e8a4a2d5620cca4a3ec9'
+    [string]$VTapiKey = 'VTAPIKEY'
 )
 $ProgressPreference = 'SilentlyContinue' 
 
