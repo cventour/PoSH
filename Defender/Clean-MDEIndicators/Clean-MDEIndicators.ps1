@@ -1,10 +1,10 @@
 param(
     # [Parameter(Mandatory)]
-    [string]$appID ='YOUR_APP_ID',
-    [string]$appSecret = 'YOUR_MDE_APP_SECRET',
-    [string]$TenantId = 'YOUR_TENANT_ID',
+    [string]$appID ='c483f897-4dca-487e-b010-e90e9d04d9cb',
+    [string]$appSecret = 'Qvz7Q~cLtWqefUd3x3.TFvc.tSRd42HT.akWd',
+    [string]$TenantId = '3f68ba40-f45f-4e2f-92bb-e5b0ca8c75a7',
     [string]$IndicatorType = 'FileSha256',
-    [string]$VTapiKey = 'YOUR_VIRUSTOTAL_API_KEY'
+    [string]$VTapiKey = '140963e9a0caa83078df9ea5e95638ed7be146e25226e8a4a2d5620cca4a3ec9'
 )
 $ProgressPreference = 'SilentlyContinue' 
 
@@ -89,7 +89,7 @@ $headers = @{
 
 Write-Host "[L] Creating log file $Logfile"
 Write-Log "Creating Log file on $(Get-Date -Format 'yyyy-MM-dd , hh:mm:ss')" 
-Write-Log "IOCType,IOCValue,Result"
+Write-Log "IOCType,IOCValue,Result,DetectionName"
 # Send the webrequest and get the results. 
 $response = Invoke-WebRequest -Method Get -Uri $url -Headers $headers -ErrorAction Stop
 
@@ -103,7 +103,7 @@ if ([int]$Selection.count -gt 0) {
         $Detection = Get-VTIndicator($Indicator.indicatorValue)
         If ($Detection -eq "NotFound") {
             Write-Host "[X]" $Indicator.indicatorValue $Indicator.title "Not found in VT" -ForegroundColor Yellow
-            $LogEntry = "$IndicatorType,"+$Indicator.indicatorValue+",Keep"
+            $LogEntry = "$IndicatorType,"+$Indicator.indicatorValue+",Keep,None"
             Write-Log $LogEntry
             Continue
         }
@@ -111,7 +111,7 @@ if ([int]$Selection.count -gt 0) {
             Write-Host -NoNewline "[V]" $Indicator.indicatorValue $Indicator.title "is detected as " $Detection.Result -ForegroundColor DarkGreen
             Write-Host "[V] Deleting IOC" $Indicator.indicatorValue
             $RemovalStatus=Remove-Indicator($Indicator.id)
-            $LogEntry = "$IndicatorType,"+$Indicator.indicatorValue+",Delete"
+            $LogEntry = "$IndicatorType,"+$Indicator.indicatorValue+",Delete,"+$Detection.Result
             Write-Log $LogEntry
         }
     }
