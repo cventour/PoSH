@@ -1,6 +1,6 @@
-#Clean MDE File Indicators
+## Clean MDE File Indicators
 
-## When do I need this tool ?
+### When do I need this tool ?
 
 Are you in a situation where you have several hundreds or thousands of File Hash Indicators added in the Microsoft Defender for Endpoint portal and you do not know if you can delete some of them because Defender AV can already block them ? Well, this tool is for you.  It will
 
@@ -8,7 +8,7 @@ Are you in a situation where you have several hundreds or thousands of File Hash
 - check them against Virustotal and find if the Defender AV engine knows about them
 - Delete the indicators that are already known to Defender AV
 
-## What do I need to get this script to run ?
+### What do I need to get this script to run ?
 
 You will need
 
@@ -25,7 +25,7 @@ IOCType - FileSha256 currently
 IOCValue - The hash value of the IOC (any value of MD5, SHA1, SHA2)
 Result - "Delete" if the IOC is deleted from the File Indicators list or "Keep" if it remains in the portal.
 
-## Examples of Usage
+### Examples of Usage
 
 `Clean-MDEIndicators.ps -appID ABCDEF -AppSecret APPSECRETHERE -TenantID TENANTID_GUID -VTapiKey YOURVIRUSTOTALAPIKEY`
 
