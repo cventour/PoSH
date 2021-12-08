@@ -8,6 +8,7 @@ param(
 )
 $ProgressPreference = 'SilentlyContinue' 
 
+$DeletedCount = 0
 $url = "https://api.securitycenter.microsoft.com/api/indicators"
 $Logfile = "MDEIndicators_$(get-date -Format "yyMMdd-hhmm")_$(hostname).log"
 
@@ -34,20 +35,15 @@ function Get-VTIndicator {
      'x-apikey' = $VTapiKey
     }
     try {
-        Do {
-            $VTresponse = Invoke-WebRequest -Method Get -Uri $VTurl -Headers $headers 
-            If ($VTresponse.StatusCode -eq 429){
-                Write-Host "[O] Response 429 , Virustotal API limits reached ... waiting for 30 seconds"
-                Sleep 30
-            }
+        $VTresponse = Invoke-WebRequest -Method Get -Uri $VTurl -Headers $headers 
+        If ($VTresponse.StatusCode -eq 429){
+             Write-Host "[O] Response 429 , Virustotal API limits reached ... waiting for 30 seconds"
+            Sleep 30
         }
-        Until ($VTResponse.StatusCode -eq 200)
     } 
     catch {
         $Er = ConvertFrom-Json($Error[0])
-    }
-    if ($er.error.code -eq 'NotFoundError') {
-        return "NotFound"
+        return $er.error.code 
     }
     $VTdata = ($VTresponse.Content | convertfrom-json).data
     $VThits = $VTdata.attributes.last_analysis_stats.malicious
@@ -91,6 +87,8 @@ Write-Host "[L] Creating log file $Logfile"
 Write-Log "Creating Log file on $(Get-Date -Format 'yyyy-MM-dd , hh:mm:ss')" 
 Write-Log "IOCType,IOCValue,Result,DetectionName"
 # Send the webrequest and get the results. 
+Write-Host "[W] Connecting to Microsoft Defender service to collect $IndicatorType indicators"
+
 $response = Invoke-WebRequest -Method Get -Uri $url -Headers $headers -ErrorAction Stop
 
 $indicators =  ($response | ConvertFrom-Json).value 
@@ -100,9 +98,16 @@ if ([int]$Selection.count -gt 0) {
     Write-Host "[*] Found" $selection.count "of $IndicatorType indicators"
     foreach ($Indicator in $Selection) {
         Write-Host  "[?] Testing " $Indicator.indicatorValue "against the Virustotal API ..."
-        $Detection = Get-VTIndicator($Indicator.indicatorValue)
-        If ($Detection -eq "NotFound") {
-            Write-Host "[X]" $Indicator.indicatorValue $Indicator.title "Not found in VT" -ForegroundColor Yellow
+        Do {
+            $Detection = Get-VTIndicator($Indicator.indicatorValue)
+            If ($Detection -eq "QuotaExceededError") {
+                Write-Host "[Q] Quota Limit Exceeded... Retrying in 60 seconds"
+                Start-Sleep -Seconds 60
+            }
+        }
+        Until ($Detection -ne "QuotaExceededError")
+        If ($Detection -eq "NotFoundError") {
+            Write-Host "[X]" $Indicator.indicatorValue $Indicator.title "Not found in Virustotal" -ForegroundColor Yellow
             $LogEntry = "$IndicatorType,"+$Indicator.indicatorValue+",Keep,None"
             Write-Log $LogEntry
             Continue
@@ -111,6 +116,7 @@ if ([int]$Selection.count -gt 0) {
             Write-Host -NoNewline "[V]" $Indicator.indicatorValue $Indicator.title "is detected as " $Detection.Result -ForegroundColor DarkGreen
             Write-Host "[V] Deleting IOC" $Indicator.indicatorValue
             $RemovalStatus=Remove-Indicator($Indicator.id)
+            $DeletedCount += 1
             $LogEntry = "$IndicatorType,"+$Indicator.indicatorValue+",Delete,"+$Detection.Result
             Write-Log $LogEntry
         }
@@ -120,4 +126,5 @@ if ([int]$Selection.count -gt 0) {
     exit
 }
 
+Write-Host "[E] $DeletedCount IOCs of $IndicatorType have been deleted ... Exiting"
 $ProgressPreference = 'Continue' 
