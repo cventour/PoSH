@@ -14,6 +14,8 @@ $Logfile = "MDEIndicators_$(get-date -Format "yyMMdd-hhmm")_$(hostname).log"
 
 $VTtype = Switch (($IndicatorType.ToLower())) {
     'filesha256'    {'files'}
+    'filesha1'      {'files'}
+    'filemd5'       {'files'}
     'ipaddress'     {'ip_addresses'}
     'url'           {'urls'}
     'domainname'    {'domains'}
@@ -45,15 +47,70 @@ function Get-VTIndicator {
         $Er = ConvertFrom-Json($Error[0])
         return $er.error.code 
     }
-    $VTdata = ($VTresponse.Content | convertfrom-json).data
-    $VThits = $VTdata.attributes.last_analysis_stats.malicious
-    $VTResults = [PSCustomObject]@{
-        Hits        = $VThits
-        Category    = $VTdata.attributes.last_analysis_results.Microsoft.category
-        Result      = $VTdata.attributes.last_analysis_results.Microsoft.result
-        Engine      = $VTdata.attributes.last_analysis_results.Microsoft.engine_version
+
+    # Try to convert from JSON
+    $isErrorOnV3 = $FALSE
+    try {
+        $VTdata = ($VTresponse.Content | ConvertFrom-Json).data
     }
-    return $VTResults
+    catch {
+        $isErrorOnV3 = $TRUE
+    }
+    
+    if ($isErrorOnV3 -eq $TRUE) {
+        # JSON convert error case rised on V3 API. Use V2 API response.
+        try {
+            $VTtypeV2 = Switch (($IndicatorType.ToLower())) {
+                'filesha256'    {'file'}
+                'filesha1'      {'file'}
+                'filemd5'       {'file'}
+                'ipaddress'     {'ip_addresses'}
+                'url'           {'urls'}
+                'domainname'    {'domains'}
+            }
+            $VTkeyV2 = Switch (($IndicatorType.ToLower())) {
+                'filesha256'    {'resource'}
+                'filesha1'      {'resource'}
+                'filemd5'       {'resource'}
+                'ipaddress'     {'ip'}
+                'url'           {'resource'}
+                'domainname'    {'domain'}
+            }
+            $VTurlv2 = "https://www.virustotal.com/vtapi/v2/$VTtypeV2/report?apikey=$VTapiKey&$VTkeyV2=$IOC&allinfo=true"
+            $VTresponseV2 = Invoke-WebRequest -Uri $VTurlv2 -Method GET
+            If ($VTresponseV2.StatusCode -eq 429){
+                 Write-Host "[O] Response 429 , Virustotal API limits reached ... waiting for 30 seconds"
+                Sleep 30
+            }
+        } 
+        catch {
+            $Er = ConvertFrom-Json($Error[0])
+            return $er.error.code 
+        }
+        $VTdataV2 = ($VTresponseV2.Content | ConvertFrom-Json)
+        $VThitsV2 = $VTdataV2.positives
+        $VTv2Category = "Undetected"
+        if ($VTdataV2.scans.Microsoft.detected -eq $TRUE) {
+            $VTv2Category = "malicious"
+        }
+        $VTResultsV2 = [PSCustomObject]@{
+            Hits        = $VThitsV2
+            Category    = $VTv2Category
+            Result      = $VTdataV2.scans.Microsoft.result
+            Engine      = $VTdataV2.scans.Microsoft.version
+        }
+        return $VTResultsV2
+    }
+    else {
+        $VThits = $VTdata.attributes.last_analysis_stats.malicious
+        $VTResults = [PSCustomObject]@{
+            Hits        = $VThits
+            Category    = $VTdata.attributes.last_analysis_results.Microsoft.category
+            Result      = $VTdata.attributes.last_analysis_results.Microsoft.result
+            Engine      = $VTdata.attributes.last_analysis_results.Microsoft.engine_version
+        }
+        return $VTResults
+    }
 }
 function Remove-Indicator {
     param (
