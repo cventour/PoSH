@@ -24,3 +24,7 @@
   ConvertTo-NRT r -tenantID 4jflcvcl3-f45f-2j4j-cl5lf-e5vcxvcxv7 -appID cccccccc-aaaa-bbbb-dddd-ffgghhjjkkll -appSecret cvcvcvcvcv+_werkjewrewr9999 -frequency 24H
 
   This will convert all eligible custom detections that have a current frequency of 24H to NRT
+
+### More info / Documentation
+
+https://learn.microsoft.com/en-us/graph/api/resources/security-api-overview?view=graph-rest-beta#custom-detections
